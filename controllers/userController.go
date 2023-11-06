@@ -30,4 +30,14 @@ func Login()
 
 func GetUsers()
 
-func GetUserById()
+func GetUserById() gin.HandlerFunc{
+	return func(c *gin.Context){
+		userId := c.Param("user_id") // we are taking the user_id given by the user in json
+		// with the help of gin.context we can access the json data send by postman or curl or user
+		
+		err := helper.MatchUserTypeToUserId(c, userId)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		}
+	}
+}
