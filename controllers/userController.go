@@ -38,6 +38,7 @@ func GetUserById() gin.HandlerFunc{
 		err := helper.MatchUserTypeToUserId(c, userId)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return 
 		}
 	}
 }
