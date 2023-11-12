@@ -5,6 +5,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func CheckUserType(c *gin.Context, userOrAdmin string) (err error) {
+	userType := c.GetString("user_type")
+	err = nil
+	if userType != userOrAdmin {
+		err = errors.New("Not authorized to access the resource")
+		return err
+	}
+	return err
+}
+
 func MatchUserTypeToUserId(c *gin.Context, userId string) (err error) {
 	//  This is the match user function
 	userType := c.GetString("user_type")
