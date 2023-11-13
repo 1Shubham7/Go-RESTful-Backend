@@ -109,8 +109,6 @@ func GetUserById() gin.HandlerFunc{
 				return 
 			}
 
-	
-
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 
 		var user models.User
