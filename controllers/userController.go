@@ -135,6 +135,10 @@ func Login() gin.HandlerFunc{
 		// if we only pass user and foundUser, it will create a new instance of user and foundUser
 		isPasswordValid, msg := VerifyPassword(*user.Password, *foundUser.Password)
 		defer cancel()
+		if isPasswordValid != true{
+			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+			return
+		}
 
 	}
 }
