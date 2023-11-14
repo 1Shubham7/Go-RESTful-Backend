@@ -92,8 +92,31 @@ func SignUp()gin.HandlerFunc{
 }
 
 func Login() gin.HandlerFunc{
-	return func(ctx *gin.Context) {
+	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		var user models.User
+		var foundUser models.User
+
+		// giving the user data to user variable
+		if err := c.BindJSON(&user); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		// finding the user through email and if found, storing it in foundUser variable
+		err := userCollection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&foundUser)
+		defer cancel()
+
+		if err!=nil{
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "email or password is incorrect"})
+			return 
+		}
+
+		// we need pointer to acess the origina user and foundUser,
+		// if we only pass user and foundUser, it will create a new instance of user and foundUser
+		isPasswordValid, msg := VerifyPassword(*user.Password, *foundUser.Password)
+		defer cancel()
+
 	}
 }
 
