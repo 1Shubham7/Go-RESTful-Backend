@@ -23,7 +23,13 @@ import (
 
 var userCollection *mongo.Collection = database.OpenCollection(database.Client, "user")
 var validate = validator.New()
-func Hashpassword()
+func Hashpassword(password string) string {
+	hashed, err:=bcrypt.GenerateFromPassword([]byte(password), 14)
+	if err!=nil{
+		log.Panic(err)
+	}
+	return string(hashed)
+}
 
 func VerifyPassword(userPassword, providedPassword string) (bool, string) {
 	
