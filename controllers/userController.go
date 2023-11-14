@@ -91,7 +91,11 @@ func SignUp()gin.HandlerFunc{
 	}
 }
 
-func Login()
+func Login() gin.HandlerFunc{
+	return func(ctx *gin.Context) {
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	}
+}
 
 func GetUsers()
 
