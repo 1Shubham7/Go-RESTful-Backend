@@ -23,7 +23,7 @@ import (
 
 var userCollection *mongo.Collection = database.OpenCollection(database.Client, "user")
 var validate = validator.New()
-func Hashpassword(password string) string {
+func HashPassword(password string) string {
 	hashed, err:=bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err!=nil{
 		log.Panic(err)
@@ -104,9 +104,6 @@ func SignUp()gin.HandlerFunc{
 
 		defer cancel()
 		c.JSON(http.StatusOK, resultInsertionNumber)
-
-		// Creating the insert error for the function This is the one thing the web server 
-		
 	}
 }
 
