@@ -22,10 +22,20 @@ import (
 )
 
 var userCollection *mongo.Collection = database.OpenCollection(database.Client, "user")
-
+var validate = validator.New()
 func Hashpassword()
 
-func VerifyPassword()
+func VerifyPassword(userPassword, providedPassword string) (bool, string) {
+	
+	err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword))
+	check := true
+	msg := ""
+	if err != nil {
+		check = false
+		msg = fmt.Sprintf("email or password is incorrect.")
+	}
+	return check, msg
+}
 
 func SignUp()gin.HandlerFunc{
 	return func(c *gin.Context){
@@ -52,6 +62,9 @@ func SignUp()gin.HandlerFunc{
 			log.Panic(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error":"error occured while checking for the email"})
 		}
+
+		password := HashPassword(*user.Password)
+		user.Password = &password
 
 		count, err = userCollection.CountDocuments(ctx, bson.M{"phone":user.Phone})
 		defer cancel()
