@@ -4,9 +4,16 @@ import(
 	"github.com/gin-gonic/gin"
 	"os"
 	routes "github.com/1shubham7/jwt/routes"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error locading the .env file")
+	}
+
 	port := os.Getenv("PORT")
 
 	if port == "" {

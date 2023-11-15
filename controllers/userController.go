@@ -178,14 +178,15 @@ func GetUsers() gin.HandlerFunc{
 			page = 1
 		}
 		startIndex := (page - 1) * recordPerPage
-		startIndex, err = strcove.Atoi(c.Query("startIndex"))
+		startIndex, err = strconv.Atoi(c.Query("startIndex"))
 
-		matchStage := bson.D{{"$match", bson.D{{}}}}
+		matchStage := bson.D{{"$match", bson.D{{}},
+	}}
 		// group all the data based on id, and then count them using $sum. then
 		// pushing all the data to the root.
 		groupStage := bson.D{{"$group", bson.D{{"_id", bson.D{{"_id", "null"}}},
 		{"total_count", bson.D{{"$sum", 1}}},
-		{"data", bson.D{{"$push", "$$ROOT"}}}
+		{"data", bson.D{{"$push", "$$ROOT"}}},
 	}}}
 
 		// in project stage we deside which data should go to the user and which not.
@@ -194,12 +195,11 @@ func GetUsers() gin.HandlerFunc{
 				{"_id", 0},
 				{"total_count", 1},
 				{"user_items", bson.D{{"$slice", []interface{}{"$data", startIndex, recordPerPage}}}},
-			}}
+			}},
 		}
 
 		result, err := userCollection.Aggregate(ctx, mongo.Pipeline{
-			matchStage, groupStage, projectStage
-		})
+			matchStage, groupStage, projectStage})
 
 		defer cancel()
 		if err != nil{
