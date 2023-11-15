@@ -152,7 +152,25 @@ func Login() gin.HandlerFunc{
 	}
 }
 
-func GetUsers()
+// GetUsers can only be accessed by the admin.
+func GetUsers() gin.HandlerFunc{
+	return func(c *gin.Context){
+		if err := helper.CheckUserType(c, "ADMIN"); err != nil{
+			c.JSON(http.StatusBadRequest, gin.H{"error":err.Error()})
+			return
+		}
+
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+
+		//  setting how many records you want per page.
+		// we are taking the recodePerPage from c and converting it to int
+		recordPerPage, err := strconv.Atoi(c.Query("recordPerPage"))
+
+		// if error or recordPerPage is less than 1, by default we will have 9 records per page
+		if recordPerPage<1||err != nil {
+			recordPerPage = 9
+		}	
+}
 
 func GetUserById() gin.HandlerFunc{
 	return func(c *gin.Context){
