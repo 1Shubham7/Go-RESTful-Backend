@@ -169,7 +169,50 @@ func GetUsers() gin.HandlerFunc{
 		// if error or recordPerPage is less than 1, by default we will have 9 records per page
 		if recordPerPage<1||err != nil {
 			recordPerPage = 9
-		}	
+		}
+
+		// this is just like page number
+		page, err1 := strconv.Atoi(c.Query("page"))
+		// we want to start with the page number 1 by default.
+		if err1 !=nil || page < 1{
+			page = 1
+		}
+		startIndex := (page - 1) * recordPerPage
+		startIndex, err = strcove.Atoi(c.Query("startIndex"))
+
+		matchStage := bson.D{{"$match", bson.D{{}}}}
+		// group all the data based on id, and then count them using $sum. then
+		// pushing all the data to the root.
+		groupStage := bson.D{{"$group", bson.D{{"_id", bson.D{{"_id", "null"}}},
+		{"total_count", bson.D{{"$sum", 1}}},
+		{"data", bson.D{{"$push", "$$ROOT"}}}
+	}}}
+
+		// in project stage we deside which data should go to the user and which not.
+		projectStage := bson.D{
+			{"$project", bson.D{
+				{"_id", 0},
+				{"total_count", 1},
+				{"user_items", bson.D{{"$slice", []interface{}{"$data", startIndex, recordPerPage}}}},
+			}}
+		}
+
+		result, err := userCollection.Aggregate(ctx, mongo.Pipeline{
+			matchStage, groupStage, projectStage
+		})
+
+		defer cancel()
+		if err != nil{
+			c.JSON(http.StatusInternalServerError, gin.H{"error":"error occured while listing user items"})
+		}
+
+		// creating a slice called allUser and giving the result value
+		var allUsers []bson.M
+		if err := result.All(ctx, &allUsers); err != nil {
+			log.Fatal(err)
+		} 
+		c.JSON(http.StatusOK, allUsers[0])
+	}
 }
 
 func GetUserById() gin.HandlerFunc{
