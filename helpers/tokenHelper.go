@@ -13,6 +13,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/gin-gonic/gin"
 )
 
 type SignedDetails struct {
@@ -93,4 +95,30 @@ func UpdateAllTokens(signedToken string, signedRefreshToken string, userId strin
 		return
 	}
 	return
+}
+
+func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
+	// this function is basically returning the token
+	token, err := jwt.ParseWithClaims(
+
+		signedToken,
+		&SignedDetails{},
+		func(token *jwt.Token)(interface{}, error){
+			return []byte(SECRET_KEY), nil
+		},
+	)
+
+	if err != nil {
+		msg = err.Error()
+		return
+	}
+
+	// checking if the token is correct or not
+
+	claims, ok := token.Claims.(*SignedDetails)
+
+	if !ok {
+		msg = fmt.Sprintf("the token is invalid")
+	}
+
 }
